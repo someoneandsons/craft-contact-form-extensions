@@ -17,6 +17,7 @@ use craft\contactform\models\Submission;
 use rias\contactformextensions\ContactFormExtensions;
 use rias\contactformextensions\elements\ContactFormSubmission;
 use yii\base\Exception;
+use yii;
 
 /**
  * CraftContactFormExtensionsService Service.
@@ -55,6 +56,18 @@ class ContactFormExtensionsService extends Component
      */
     public function saveSubmission(Submission $submission)
     {
+        if($submission->attachment) {
+	        foreach($submission->attachment as $attachment) {
+		        $name = basename($attachment->tempName).'.'.pathinfo($attachment->name)['extension'];
+		        $path = Yii::getAlias('@webroot/contactform/'.$name);
+		        
+		        if($attachment->saveAs($path, false)) {
+			        $url = Yii::getAlias('@web/contactform/'.$name);
+			        $submission->message['attachments'][] = '<a href="'.$url.'" target="_blank"><img src="'.$url.'"></a>';
+		        }
+	        }
+        }
+        
         $contactFormSubmission = new ContactFormSubmission();
         $contactFormSubmission->form = $submission->message['formName'] ?? 'contact';
         $contactFormSubmission->fromName = $submission->fromName;
