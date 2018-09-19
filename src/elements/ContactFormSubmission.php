@@ -159,11 +159,11 @@ class ContactFormSubmission extends Element
     public function getTableAttributeHtml(string $attribute): string
     {
         if ($attribute == 'message') {
-          $message = (array) json_decode($this->message);
+          $message = (array) json_decode(strip_tags($this->message));
           $html = '<ul>';
           foreach ($message as $key => $value) {
               if (is_string($value)) {
-                  $shortened = trim(substr($value, 0, 30));
+                  $shortened = mb_convert_encoding(trim(substr($value, 0, 30)), 'UTF-8');
                   $html .= "<li><em>{$key}</em>: {$shortened}...</li>";
               }
           }
@@ -173,12 +173,12 @@ class ContactFormSubmission extends Element
         }
         
         if ($attribute == 'attachments') {
-          $message = (array) json_decode($this->message);
+          $message = (array) json_decode(strip_tags($this->message));
           if(array_key_exists('attachments', $message)) {
             $html = '<ul class="message-attachments">';
             foreach ( $message['attachments'] as $key => $value) {
               if (is_string($value)) {
-                $html .= "<li>".$value."</li>";
+                $html .= "<li>".mb_convert_encoding($value, 'UTF-8')."</li>";
               }
             }
             $html .= '</ul>';
